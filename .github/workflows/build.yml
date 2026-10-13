@@ -1,0 +1,30 @@
+name: Divine bauen
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21' }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: '8.10.2' }
+      - name: Mod bauen
+        working-directory: divine-mod
+        run: gradle build
+      - name: Mod nach assets kopieren
+        shell: bash
+        run: |
+          mkdir -p assets
+          cp divine-mod/build/libs/divine-mod-1.0.0.jar assets/divine-mod.jar
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm install
+      - run: npx electron-builder --win portable --publish never
+      - uses: actions/upload-artifact@v4
+        with: { name: Divine-Client-EXE, path: dist/Divine-Client.exe }
+      - uses: actions/upload-artifact@v4
+        with: { name: divine-mod-jar, path: assets/divine-mod.jar }
