@@ -1,0 +1,5 @@
+Divine-Mod (Button "Divine Settings" im Hauptmenue) – nur Minecraft 1.21.1 + Fabric
+1) JDK 21 installieren und Gradle:   winget install Gradle.Gradle
+2) In den Ordner divine-mod wechseln und:   gradle build
+3) Die Datei build/libs/divine-mod-1.0.0.jar nach  assets/divine-mod.jar  kopieren (im Client-Ordner).
+4) Client neu starten: Fabric-Profile (1.21.1, mit Fabric API) bekommen den Mod automatisch.

@@ -1,0 +1,26 @@
+{
+  "name": "warden-client-for-mc",
+  "productName": "Divine Client",
+  "version": "2.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "minecraft-launcher-core": "^3.18.1",
+    "msmc": "^5.0.5"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.warden.client",
+    "productName": "Divine Client",
+    "files": ["main.js", "preload.js", "index.html", "package.json", "assets/**"],
+    "win": { "target": "portable", "icon": "assets/icon.ico" },
+    "portable": { "artifactName": "Divine-Client.exe" }
+  }
+}

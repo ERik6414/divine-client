@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><title>Divine Client</title>
+<link rel="icon" href="assets/icon.png">
+<style>
+:root{--ink:#fff3e6;--dim:#c9a99a;--glass:rgba(255,255,255,.07);--edge:rgba(255,255,255,.17);--teal:#ff9f1c;--gold:#ffd23f;--red:#6b0f1a}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden}
+body{font:14px/1.5 "Segoe UI Variable","Inter",system-ui,sans-serif;color:var(--ink);display:flex;flex-direction:column;
+ background:radial-gradient(55% 55% at 12% 8%,#a8330a 0,transparent 70%),radial-gradient(50% 50% at 92% 92%,#6b0f1a 0,transparent 70%),radial-gradient(35% 35% at 75% 15%,#ffb02e44 0,transparent 70%),#130604}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(70% 70% at 50% 40%,#000,transparent);mask-image:radial-gradient(70% 70% at 50% 40%,#000,transparent)}
+body::after{content:"";position:fixed;width:420px;height:420px;border-radius:50%;filter:blur(90px);background:#ff9f1c44;left:30%;top:-140px;animation:fl 14s ease-in-out infinite alternate;pointer-events:none}
+@keyframes fl{to{transform:translate(300px,200px);background:#ff3d3d33}}
+@media(prefers-reduced-motion:reduce){body::after{animation:none}}
+.g{background:var(--glass);backdrop-filter:blur(26px) saturate(1.6);-webkit-backdrop-filter:blur(26px) saturate(1.6);border:1px solid var(--edge);border-radius:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 14px 34px rgba(0,0,0,.32)}
+#bar{height:42px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;-webkit-app-region:drag;position:relative;z-index:2}
+#bar .t{display:flex;align-items:center;gap:10px;font-weight:650;letter-spacing:.02em}#bar .t img{width:22px;height:22px;border-radius:6px}
+#bar .w{display:flex;gap:8px;-webkit-app-region:no-drag}#bar i{width:13px;height:13px;border-radius:50%;cursor:pointer;transition:.15s}#bar i:hover{transform:scale(1.25)}
+main{flex:1;display:flex;gap:14px;padding:0 14px 14px;min-height:0;position:relative;z-index:1}
+nav{width:208px;padding:14px 10px;display:flex;flex-direction:column;gap:3px;flex:none}
+nav .brand{display:flex;align-items:center;gap:10px;padding:2px 10px 14px}nav .brand img{width:38px;height:38px;border-radius:11px;box-shadow:0 0 18px #ff9f1c66}
+nav .brand b{font-size:17px;line-height:1.1;letter-spacing:-.01em}nav .brand small{display:block;color:var(--dim);font-size:10px;letter-spacing:.14em;font-weight:600}
+nav button{all:unset;cursor:pointer;padding:9px 12px;border-radius:13px;color:var(--dim);transition:.18s;display:flex;align-items:center;gap:11px}
+nav button svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+nav button:hover{background:rgba(255,255,255,.07);color:var(--ink)}
+nav button.on{background:linear-gradient(90deg,rgba(255,159,28,.28),rgba(255,255,255,.1));color:var(--ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+nav button.on svg{color:var(--gold)}nav .sp{flex:1}nav .sep{height:1px;background:var(--edge);margin:6px 8px}
+#acc{display:flex;gap:10px;align-items:center;padding:9px;border-radius:15px;background:rgba(255,255,255,.07);cursor:pointer;transition:.18s}#acc:hover{background:rgba(255,255,255,.12)}
+canvas{image-rendering:pixelated}
+#acc canvas{width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.1);flex:none}
+#acc b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}#acc small{color:var(--dim);display:block;line-height:1.2}
+.page{flex:1;display:none;overflow:auto;padding:2px 6px 8px 2px;gap:14px;min-width:0}
+.page.on{display:flex;flex-direction:column}
+.page::-webkit-scrollbar,#log::-webkit-scrollbar{width:8px}.page::-webkit-scrollbar-thumb,#log::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:9px}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em}h3{font-size:15px;margin-bottom:8px}
+.page h1:not(#hi){background:linear-gradient(90deg,#fff3e6,var(--acc,#ff9f1c));-webkit-background-clip:text;background-clip:text;color:transparent}
+#profiles{--acc:#ffb86b}#discover{--acc:#ffd23f}#skins{--acc:#ff8a5a}#set{--acc:#c9a99a}#cheat{--acc:#ff8aa0}#shop{--acc:#ffd23f}#divine{--acc:#ffb02e}
+.card{padding:18px}.dim{color:var(--dim)}.tag{letter-spacing:.18em;color:var(--teal);font-size:11px;font-weight:700}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.between{justify-content:space-between}.col{display:flex;flex-direction:column;gap:10px}
+input,select,.b{font:inherit;color:var(--ink);background:rgba(255,255,255,.09);border:1px solid var(--edge);border-radius:12px;padding:8px 13px;outline:none;transition:.15s}
+input:focus,select:focus,.b:focus-visible{border-color:var(--teal);background:rgba(255,255,255,.13)}
+input[type=checkbox]{width:20px;height:20px;accent-color:#ff9f1c;padding:0}
+select option{color:#000}.b{cursor:pointer}.b:hover{background:rgba(255,255,255,.17)}.b:disabled{opacity:.5;cursor:default}
+.play{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(180deg,#ffb347,#e8590c);color:#fff;border:1px solid #ffd28a;font:inherit;font-weight:700;padding:9px 22px;border-radius:13px;cursor:pointer;box-shadow:0 6px 20px #ff8a1a44;transition:.15s}
+.play:hover{filter:brightness(1.1);transform:translateY(-1px)}.play:disabled{filter:grayscale(.7);opacity:.6;cursor:default;transform:none}
+.stop{background:linear-gradient(180deg,#ff6b6b,#c0392b);border-color:#ff9a9a;box-shadow:0 6px 20px #ff6b6b44}
+.sm{padding:5px 12px;font-size:13px;border-radius:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{padding:2px 10px;border-radius:99px;background:rgba(255,255,255,.1);border:1px solid var(--edge);font-size:12px;white-space:nowrap}
+.chip a{margin-left:8px;color:var(--dim);text-decoration:none}.chip.f{background:rgba(255,159,28,.2);border-color:#ff9f1c88}.chip.q{background:rgba(139,92,246,.22)}.chip.n{background:rgba(56,189,248,.2)}.chip.v{background:rgba(52,211,153,.18)}
+.seg{display:inline-flex;padding:4px;border-radius:15px;background:rgba(255,255,255,.08);flex:none}
+.seg button{all:unset;cursor:pointer;padding:7px 18px;border-radius:11px;color:var(--dim);transition:.15s}.seg button:hover{color:var(--ink)}.seg button.on{background:rgba(255,255,255,.17);color:var(--ink)}
+.tile{width:56px;height:56px;border-radius:15px;flex:none;object-fit:cover;display:grid;place-items:center;font-weight:700;font-size:22px;background:linear-gradient(135deg,var(--c1),var(--c2))}
+.tile.big{width:84px;height:84px;border-radius:22px;font-size:34px;box-shadow:0 8px 22px rgba(0,0,0,.4)}.tile.huge{width:104px;height:104px;border-radius:26px;font-size:42px}
+/* Start */
+.hgrid{display:grid;grid-template-columns:1fr 310px;gap:16px;flex:1;min-height:0}.hleft{display:flex;flex-direction:column;gap:14px;min-width:0}
+.banner{position:relative;height:140px;border-radius:20px;overflow:hidden;padding:22px 28px;background:linear-gradient(180deg,#ffb02e 0%,#ff6a1a 45%,#6b0f1a 100%);border:1px solid var(--edge);flex:none}
+.banner p{color:#ffe9d0}.banner .sun{position:absolute;right:70px;top:22px;width:66px;height:66px;border-radius:13px;background:#fff6c9;box-shadow:0 0 60px 20px #fff6c955}
+.banner .hills{position:absolute;left:0;right:0;bottom:0;height:58px;background:#3a0d08;opacity:.85;clip-path:polygon(0 60%,8% 40%,16% 40%,16% 20%,26% 20%,26% 45%,40% 45%,40% 30%,52% 30%,52% 55%,68% 55%,68% 25%,80% 25%,80% 45%,100% 45%,100% 100%,0 100%)}
+.banner img{position:absolute;right:22px;bottom:10px;width:74px;height:74px;filter:drop-shadow(0 6px 14px #0008)}
+.prow{display:flex;align-items:center;gap:14px;padding:12px 16px;margin-bottom:10px;cursor:pointer;transition:.2s}.prow:hover,.pcard:hover,.res:hover,.skin:hover,.cl:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.38)}
+.prow .t{flex:1;min-width:0}.prow b{font-size:16px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.st{padding:12px 16px;border-top:3px solid var(--a,#ff9f1c)}.st b{display:block;font-size:22px;color:var(--a)}.st span{color:var(--dim);font-size:12px}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tip{color:var(--dim);margin-top:8px}.bd{display:inline-block;margin-right:8px;padding:1px 9px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.08em;color:#1b0a04;background:var(--a)}
+.skincard{display:flex;flex-direction:column;align-items:center;padding:16px;gap:8px;background:linear-gradient(180deg,rgba(255,200,150,.18),rgba(255,159,28,.18) 55%,rgba(60,16,8,.35));position:relative;min-height:0}
+.nc{padding:5px 16px;border-radius:12px;background:rgba(0,0,0,.35);text-align:center;cursor:pointer;max-width:100%}.nc small{display:block;color:var(--dim)}
+#me{flex:1;min-height:0;max-height:100%;aspect-ratio:1/2;margin:6px 0;filter:drop-shadow(0 16px 20px rgba(0,0,0,.5))}
+.tools{position:absolute;right:12px;bottom:12px;display:flex;gap:6px}.tools .b{width:36px;height:36px;padding:0;text-align:center;border-radius:11px}
+#log{max-height:96px;overflow:auto;padding:9px 14px;font:12px ui-monospace,Menlo,monospace;color:var(--dim);white-space:pre-wrap;flex:none}
+/* Profile */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.pcard{padding:18px 14px 14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:7px;cursor:pointer;transition:.2s}
+.pcard b{font-size:16px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pcard .chips{justify-content:center}.pcard .play{width:100%;margin-top:4px}
+.pcard.add{border-style:dashed;justify-content:center;color:var(--dim);min-height:210px}.pcard.add .plus{font-size:40px;line-height:1}
+.phead{display:flex;gap:18px;align-items:center;padding:20px}.phead .m{flex:1;min-width:0}.phead h1{font-size:26px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--edge);margin-bottom:14px}.tabs button{all:unset;cursor:pointer;padding:9px 18px;color:var(--dim);border-bottom:2px solid transparent;transition:.15s}.tabs button.on{color:var(--ink);border-color:var(--teal)}.tabs button:hover{color:var(--ink)}
+.line{display:flex;justify-content:space-between;align-items:center;padding:10px 2px;border-bottom:1px solid var(--edge);gap:12px}.line:last-child{border-bottom:0}.line small{display:block}
+.mrow{display:flex;align-items:center;gap:12px;padding:8px 4px;border-bottom:1px solid var(--edge)}.mrow span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mrow.off span{opacity:.45;text-decoration:line-through}
+/* Entdecken */
+.res{display:flex;gap:16px;padding:14px;margin-bottom:10px;align-items:center;cursor:pointer;transition:.2s}
+.res img,.res .tile{width:72px;height:72px;border-radius:17px;flex:none;object-fit:cover}
+.res .m{flex:1;min-width:0}.res p{color:var(--dim);font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.res .s{text-align:right;color:var(--dim);font-size:12px;display:flex;flex-direction:column;gap:6px;align-items:flex-end;min-width:120px}
+.dh{display:flex;gap:18px;align-items:flex-start;padding:20px}.dh img,.dh .tile{width:96px;height:96px;border-radius:22px;object-fit:cover;flex:none}
+.body{line-height:1.65;overflow-wrap:anywhere}.body img{max-width:100%;border-radius:12px;margin:8px 0}.body h2,.body h3,.body h4{margin:16px 0 6px}.body pre{background:rgba(0,0,0,.35);padding:10px 12px;border-radius:10px;overflow:auto;font:12px ui-monospace,monospace}
+.body code{background:rgba(0,0,0,.3);padding:1px 6px;border-radius:6px;font-size:12px}.body a{color:var(--gold)}.body ul{padding-left:22px}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}.gal img{width:100%;border-radius:14px;border:1px solid var(--edge)}
+/* Skins/Shop/Cheat */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px}.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.skin{padding:12px;border-radius:18px;text-align:center;cursor:pointer;transition:.2s}.skin canvas{height:120px}
+#big{height:340px}.item{padding:14px;text-align:center}.item .pv{height:130px;display:grid;place-items:center;font-size:56px}.item canvas{height:120px}
+.cl{display:flex;gap:16px;padding:14px;margin-bottom:10px;align-items:center;transition:.2s}.cl .m{flex:1;min-width:0}.cl p{color:var(--dim);font-size:13px}.cl .s{display:flex;flex-direction:column;gap:6px;align-items:flex-end;min-width:150px;font-size:12px}
+.warn{border-color:#ff8aa0;color:#ffd0d8}.hint{color:var(--dim);font-size:12px}
+.pv-bg{width:100%;max-width:480px;aspect-ratio:1/1;object-fit:cover;border-radius:16px;border:1px solid var(--edge)}
+/* Overlays */
+#toast,#pg{position:fixed;left:50%;transform:translateX(-50%);display:none;z-index:9;background:rgba(40,14,6,.94);border:1px solid var(--edge);border-radius:16px;backdrop-filter:blur(20px)}
+#toast{bottom:24px;padding:12px 22px;max-width:80vw}#pg{bottom:24px;width:440px;padding:12px 18px}
+#pg div{height:8px;border-radius:9px;background:rgba(255,255,255,.12);margin-top:8px;overflow:hidden}#pgb{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffb347,#ff9f1c);transition:width .3s}
+.ov{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:radial-gradient(60% 50% at 50% 40%,#5a1608,#130604 70%);transition:opacity .6s}
+.ov.on{display:flex}#splash{display:flex}#splash.off{opacity:0;pointer-events:none}
+.ov img{width:132px;height:132px;border-radius:30px;box-shadow:0 0 60px #ff9f1c77;animation:pul 2s ease-in-out infinite alternate}
+.ov .lg{font-size:44px;font-weight:800;letter-spacing:.3em;padding-left:.3em;background:linear-gradient(180deg,#ffd23f,#ff5a1f);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 20px #ff7a1a88)}
+@keyframes pul{to{box-shadow:0 0 90px #ffb02ecc;transform:scale(1.05)}}
+.ov .by{letter-spacing:.4em;font-size:12px;color:var(--teal);padding-left:.4em;text-transform:uppercase;font-weight:600;margin-top:-8px}
+.ov .pb{width:320px;height:6px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden}
+.ov .pb i{display:block;height:100%;width:30%;background:linear-gradient(90deg,#ffd23f,#ff5a1f);animation:ld 1.4s ease-in-out infinite}@keyframes ld{0%{margin-left:-30%}100%{margin-left:100%}}
+#ls .pb i{animation:none;width:0;transition:width .3s}
+
+/* ===== Dawn-Look in Divine-Farben ===== */
+body{background:radial-gradient(60% 40% at 50% -10%,#3a1306 0,transparent 70%),#0b0605}
+body::before,body::after{display:none}
+.g{background:#140e0c;backdrop-filter:none;-webkit-backdrop-filter:none;border:1px solid rgba(255,255,255,.08);border-radius:18px;box-shadow:none}
+nav{width:76px;align-items:center;padding:12px 8px;background:#100a09}
+nav .brand{padding:2px 0 12px}nav .brand img{width:44px;height:44px}
+nav button{font-size:0;padding:12px;border-radius:14px;width:52px;height:48px;justify-content:center}
+nav button svg{width:22px;height:22px}nav button.on{background:#241512;box-shadow:inset 0 0 0 1px rgba(255,159,28,.35);color:var(--teal)}nav button.on svg{color:var(--teal)}
+nav .sep{width:36px}#acc{padding:6px;background:transparent;justify-content:center}#acc>div{display:none}#acc canvas{width:44px;height:44px;border-radius:12px;border:2px solid #ff9f1c88}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex:none}
+.tabpill{display:flex;gap:6px;padding:5px;border-radius:18px;background:#100a09;border:1px solid rgba(255,255,255,.08)}
+.tabpill .tab{display:flex;align-items:center;gap:8px;padding:8px 26px;border-radius:13px;font-weight:800;letter-spacing:.14em;color:var(--dim)}
+.tabpill .tab img{width:20px;height:20px;border-radius:5px}
+.tabpill .tab.on{color:#fff;background:linear-gradient(180deg,#ff9f1c,#e8590c);box-shadow:0 0 22px #ff7a1a55}
+.topbtn{font:inherit;font-weight:700;color:var(--ink);background:#1a1210;border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:10px 22px;cursor:pointer}.topbtn:hover{background:#241815}
+.topbtn.gold{color:#2a1200;background:linear-gradient(180deg,#ffe27a,#ffb02e);border-color:#ffe9a8}
+.hgrid{grid-template-columns:1fr 330px}.hright{display:flex;flex-direction:column;gap:12px;min-width:0}
+.hero{position:relative;flex:1;min-height:300px;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;align-items:center;padding-top:10px;
+ background:linear-gradient(180deg,#0000 40%,#0b060599),url(assets/bg.png) center 62%/cover;image-rendering:pixelated}
+.hero .nc{background:rgba(40,30,28,.85);border:1px solid rgba(255,255,255,.15);z-index:2;image-rendering:auto}
+.hero .nc b{font-size:19px}
+#me{flex:1;min-height:0;max-height:100%;aspect-ratio:1/2;margin:6px 0 64px;filter:drop-shadow(0 18px 18px rgba(0,0,0,.55))}
+.herobar{position:absolute;bottom:0;left:50%;transform:translateX(-50%);background:#0b0605;padding:12px 16px 0;border-radius:22px 22px 0 0}
+.hero .tools{position:absolute;right:14px;bottom:14px;display:flex;gap:6px}.hero .tools .b{background:#0b0605cc}
+.prow{padding:16px 18px;border-radius:18px;background:linear-gradient(90deg,#1b1210,#140e0c)}.prow:first-child{padding:24px 20px;background:linear-gradient(90deg,#1f130e,#140e0c 70%)}
+.prow .tile{width:62px;height:62px}.prow:first-child b{font-size:22px}
+.prow .play,.pcard .play{background:linear-gradient(180deg,#ffb347,#e8590c);border-color:#ffd28a}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:12px}.acts .b{padding:14px;text-align:center;font-weight:700;border-radius:16px}
+.acts .o{background:linear-gradient(90deg,#ffb02ecc,#e8590c);border-color:#ffd28a;color:#fff}
+.news{position:relative;border-radius:18px;padding:70px 20px 18px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(135deg,#2a0f08,#e8590c88 130%),url(assets/bg.png) center/cover;display:flex;flex-direction:column;gap:2px}
+.news b{font-size:19px}.kunde{align-self:flex-start;background:#e8590c;color:#fff;font-size:11px;font-weight:800;padding:2px 10px;border-radius:7px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#ff7a1a;margin-right:10px}
+.stats{grid-template-columns:repeat(2,1fr)}.hgrid{flex:1;min-height:0}.hleft{overflow:auto;padding-right:4px}
+#px{position:fixed;inset:0;z-index:60;display:none;background:rgba(10,4,2,.72);backdrop-filter:blur(6px);align-items:center;justify-content:center}#px.on{display:flex}
+.pxbox{padding:20px;width:min(1000px,94%);max-height:96vh;overflow:auto}.pxgrid{display:grid;grid-template-columns:1fr 512px;gap:18px;margin-top:8px}.pxtools{display:flex;flex-direction:column;gap:10px;min-width:0}
+.pxcv{position:relative;width:512px;height:512px;background:repeating-conic-gradient(#2a1a14 0 25%,#1c110d 0 50%) 0 0/16px 16px;border-radius:12px;overflow:hidden}
+.pxcv canvas{position:absolute;inset:0;width:512px;height:512px;image-rendering:pixelated}#pxg{pointer-events:none}#pxc{cursor:crosshair;touch-action:none}
+.pxprev{height:150px;align-self:center}.sw{width:22px;height:22px;border-radius:6px;border:1px solid var(--edge);cursor:pointer}[data-tool].on{background:rgba(255,159,28,.35);border-color:var(--teal)}
+</style></head><body>
+<div id="splash" class="ov"><img src="assets/logo.png" alt=""><div class="lg">DIVINE</div><div class="by">Client · by ErikFCH1965</div><div class="pb"><i></i></div><small class="dim">Wird geladen …</small></div>
+<div id="ls" class="ov"><img src="assets/logo.png" alt=""><div class="lg">DIVINE</div><div class="by">Client · by ErikFCH1965</div><div class="pb"><i id="lsb"></i></div><small class="dim" id="lst">Minecraft startet …</small></div>
+<div id="toast"></div><div id="pg"><span id="pgt"></span><div><i id="pgb"></i></div></div>
+<div id="bar"><div class="t"><img src="assets/logo.png" alt="">Divine Client <span style="font-weight:400;opacity:.65">· by ErikFCH1965</span></div><div class="w"><i style="background:#febc2e" data-win="min"></i><i style="background:#28c840" data-win="max"></i><i style="background:#ff5f57" data-win="close"></i></div></div>
+<main>
+<nav class="g">
+ <div class="brand"><img src="assets/logo.png" alt=""></div>
+ <button class="on" data-t="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Start</button>
+ <button data-t="profiles"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Profile</button>
+ <button data-t="discover"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>Entdecken</button>
+ <button data-t="skins"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4.5-6 8-6s7 1.5 8 6"/></svg>Skins &amp; Capes</button>
+ <button data-t="divine"><svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg>Divine Settings</button>
+ <button data-t="shop"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 016 0"/></svg>Shop</button>
+ <button data-t="cheat" style="color:#ff8aa0"><svg viewBox="0 0 24 24"><path d="M12 3a7 7 0 00-4 12.7V19h8v-3.3A7 7 0 0012 3z"/><circle cx="9.5" cy="11" r="1"/><circle cx="14.5" cy="11" r="1"/><path d="M10 19v2m4-2v2"/></svg>Cheat-Ecke</button>
+ <button data-t="set"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Einstellungen</button>
+ <span class="sp"></span><div class="sep"></div>
+ <div id="acc"><canvas width="8" height="8"></canvas><div><b id="an">Nicht angemeldet</b><small id="as">Zum Anmelden klicken</small></div></div>
+</nav>
+
+<!-- START -->
+<div id="home" class="page on">
+ <div class="topbar"><div class="tabpill"><span class="tab on"><img src="assets/logo.png" alt="">DIVINE</span><span class="tab">CLIENT</span></div>
+  <div class="row"><button class="topbtn" data-act="goto" data-a="shop">⇄ Shop</button><button class="topbtn gold" data-act="goto" data-a="shop">✪ <span id="coins">–</span></button></div></div>
+ <div class="hgrid">
+ <div class="hleft">
+  <div class="hero"><h1 id="hi" style="display:none">Willkommen zurück</h1>
+   <div class="nc" data-act="goto" data-a="skins"><b id="ncn">Nicht angemeldet</b><small>→ Gehe zu Skins</small></div>
+   <canvas id="me"></canvas>
+   <div class="herobar"><button class="b" id="hl" style="color:var(--gold)">Mit Microsoft anmelden</button></div>
+   <div class="tools"><button class="b" data-act="flip" title="Drehen (Vorne / Hinten)">⟲</button><button class="b" data-act="goto" data-a="skins" title="Skins">✎</button></div></div>
+  <div class="row between"><b>◷ &nbsp;Zuletzt gespielte Profile</b><span class="chips"><span class="chip f">Java ✓</span><span class="chip">GRUNDGESTEIN</span></span></div>
+  <div id="recent"></div>
+  <div class="acts"><button class="b o" data-act="goto" data-a="profiles">▦ &nbsp;Alle Profile verwalten</button><button class="b" data-act="goto" data-a="discover">+ &nbsp;Mods hinzufügen</button></div>
+ </div>
+ <div class="hright">
+  <div class="row between"><b><span class="dot"></span>Neueste Nachrichten</b><span class="dim" style="font-size:12px">Alle anzeigen →</span></div>
+  <div class="news"><span class="kunde">NEU</span><b>Divine Update 2.0</b><small class="dim">Alle Versionen bis 26.2</small></div>
+  <div class="g card"><h3>Server</h3><div id="srv"></div><div class="row" style="margin-top:10px"><input id="sn" placeholder="Name" size="6"><input id="sa" placeholder="Adresse" size="9"><button class="b" id="sadd">+</button></div><div class="row" style="margin-top:8px"><span class="hint">Mit Profil:</span><select id="srvp"></select></div></div>
+  <div class="stats"><div class="g st" style="--a:#ff9f1c"><b id="s1">0</b><span>Profile</span></div><div class="g st" style="--a:#ffb86b"><b id="s2">0</b><span>Mods</span></div><div class="g st" style="--a:#ffd23f"><b id="s3">4 GB</b><span>RAM</span></div><div class="g st" style="--a:#ff8a5a"><b id="s4">0</b><span>Server</span></div></div>
+  <div id="log" class="g">Meldungen erscheinen hier.</div>
+ </div>
+</div></div>
+
+<!-- PROFILE -->
+<div id="profiles" class="page">
+ <div id="plistv" class="col">
+  <h1>Profile</h1>
+  <div class="g card row"><input id="pn" placeholder="Name deines neuen Profils"><select id="pl"><option value="fabric">Fabric</option><option value="quilt">Quilt</option><option value="forge">Forge</option><option value="neoforge">NeoForge</option><option value="vanilla">Vanilla (ohne Mods)</option></select><select id="pv"></select>
+   <button class="b" id="mk">Profil erstellen</button><button class="b" id="starter">Starter-Paket (Performance)</button><button class="b" data-act="goto" data-a="discover">Fertige Modpacks finden →</button></div>
+  <div id="pgrid" class="pgrid"></div>
+ </div>
+ <div id="pdv" class="col" style="display:none"></div>
+</div>
+
+<!-- ENTDECKEN -->
+<div id="discover" class="page">
+ <div id="dlistv" class="col">
+  <div class="row between"><h1>Entdecken</h1><div class="seg" id="tyseg"><button class="on" data-ty="modpack">Modpacks</button><button data-ty="mod">Mods</button></div></div>
+  <div class="g card row"><input id="q" placeholder="Auf Modrinth suchen …" size="22">
+   <select id="sort"><option value="relevance">Relevanz</option><option value="downloads">Downloads</option><option value="follows">Beliebtheit</option><option value="newest">Neueste</option><option value="updated">Aktualisiert</option></select>
+   <select id="ver"></select>
+   <select id="ld"><option value="">Alle Loader</option><option value="fabric">Fabric</option><option value="quilt">Quilt</option><option value="forge">Forge</option><option value="neoforge">NeoForge</option></select><label class="dim" id="tl" style="display:none">Zu Profil <select id="target"></select></label><button class="b" id="s">Suchen</button></div>
+  <div id="res"></div><button class="b" id="more" style="display:none;align-self:center">Mehr laden</button>
+ </div>
+ <div id="ddv" class="col" style="display:none"></div>
+</div>
+
+<!-- SKINS & CAPES -->
+<div id="skins" class="page">
+ <h1>Skins &amp; Capes</h1>
+ <div style="display:grid;grid-template-columns:290px 1fr;gap:14px">
+  <div class="g card" style="text-align:center"><canvas id="big"></canvas><p class="dim" id="cur">Aktueller Skin</p><div class="row" style="justify-content:center;margin-top:8px"><button class="b sm" data-act="flip">⟲ Drehen</button></div><p class="hint" id="capeinfo" style="margin-top:8px"></p></div>
+  <div class="g card"><div class="row" style="margin-bottom:14px"><button class="b" id="imp">Skin importieren (PNG)</button><button class="b" id="pxopen">🎨 Skin Pixler</button><select id="var"><option value="classic">Klassisch (Steve)</option><option value="slim">Schmal (Alex)</option></select></div>
+   <p class="dim" style="margin-bottom:10px">Klick auf einen Skin, um ihn zu verwenden.</p><div class="grid" id="lib"></div>
+   <p class="dim" style="margin:18px 0 10px">Deine Mojang-Capes – Klick zum Tragen</p><div class="grid" id="capes"></div>
+   <p class="dim" style="margin:18px 0 10px">Gekaufte Divine-Capes – Klick zum Tragen (erscheint im Avatar)</p><div class="grid" id="dcapes"></div></div>
+ </div>
+</div>
+
+<!-- DIVINE SETTINGS -->
+<div id="divine" class="page"><h1>Divine Settings</h1>
+ <div class="g card"><h3>Hauptmenü &amp; Ladebildschirm</h3>
+  <div class="row" style="align-items:flex-start;gap:20px"><img id="bgprev" class="pv-bg" alt="" style="max-width:260px">
+   <div class="col" style="flex:1;min-width:260px">
+    <div class="line"><span>Divine-Design im Spiel<small class="hint">Ladebildschirm „Divine Client“, eigenes Logo &amp; Menü-Look (gilt ab dem nächsten Start)</small></span><input type="checkbox" id="dmenu"></div>
+    <div class="row"><button class="b" id="bgpick">Eigenen Hintergrund wählen …</button><button class="b" id="bgreset">Standard</button></div>
+    <p class="hint">Der Hintergrund erscheint im Minecraft-Hauptmenü (Panorama). Am besten ein quadratisches oder breites Bild – es wird mittig zugeschnitten.</p>
+   </div></div></div>
+ <div class="g card"><h3>Anzeige &amp; Steuerung <span class="hint">(wird beim Start in Minecrafts Optionen geschrieben)</span></h3>
+  <div class="line"><span>Standard-GUI-Größe</span><select id="d-gui"><option value="">Nicht ändern</option><option value="0">Automatisch</option><option value="1">Klein (1)</option><option value="2">Normal (2)</option><option value="3">Groß (3)</option><option value="4">Sehr groß (4)</option></select></div>
+  <div class="line"><span>Sichtfeld (FOV)</span><span class="row"><input id="d-fov" type="number" min="30" max="110" placeholder="—" style="width:90px"><span class="hint">30–110</span></span></div>
+  <div class="line"><span>Renderdistanz</span><span class="row"><input id="d-rd" type="number" min="2" max="64" placeholder="—" style="width:90px"><span class="hint">Chunks</span></span></div>
+  <div class="line"><span>Max. FPS</span><span class="row"><input id="d-fps" type="number" min="10" max="260" placeholder="—" style="width:90px"><span class="hint">260 = unbegrenzt</span></span></div>
+  <div class="line"><span>Fullbright (volle Helligkeit)</span><select id="d-fb"><option value="">Nicht ändern</option><option value="on">An</option><option value="off">Aus</option></select></div>
+  <div class="line"><span>Anvisierten Block hervorheben<small class="hint">Hoher-Kontrast-Umriss – nur in Versionen, die diese Option kennen</small></span><select id="d-ol"><option value="">Nicht ändern</option><option value="on">An</option><option value="off">Aus</option></select></div>
+ </div>
+ <div class="g card"><h3>GUI-Größe pro Server</h3><p class="hint" style="margin-bottom:8px">Gilt, wenn du über „Beitreten“ auf der Startseite verbindest. Danach ist wieder deine Standard-Größe aktiv.</p><div id="srvcfg"></div></div>
+ <div class="g card"><h3>Name</h3>
+  <div class="line"><span>Meinen Namen verbergen<small class="hint">Blendet deinen Namen im Launcher aus (Streamer-Modus). Im Spiel selbst bleibt dein Name, weil Server ihn zur Anmeldung brauchen.</small></span><input type="checkbox" id="hide"></div></div>
+</div>
+
+<!-- SHOP -->
+<div id="shop" class="page"><div class="row between"><h1>Shop</h1><div id="wal" class="g" style="padding:8px 18px;display:none"></div></div>
+ <div id="auth" class="g card" style="max-width:460px"><div class="seg" style="margin-bottom:14px"><button class="on" data-au="login">Anmelden</button><button data-au="reg">Registrieren</button></div>
+  <div class="col"><input id="un" placeholder="Benutzername"><input id="up" type="password" placeholder="Passwort"><input id="uc" placeholder="Creator-Code (optional)" style="display:none"><button class="play" id="ugo">Anmelden</button></div>
+  <p class="dim" style="margin-top:10px;font-size:12px">Dein Divine-Konto wird nur auf diesem PC gespeichert.</p></div>
+ <div id="store" style="display:none;flex-direction:column;gap:14px">
+  <div class="g card row" id="upl" style="display:none"><b>Hochladen</b><input id="in" placeholder="Name"><select id="it"><option value="skin">Skin (PNG)</option><option value="cape">Cape (PNG)</option><option value="badge">Badge (Symbol)</option></select><input id="ip" type="number" min="0" value="0" style="width:90px" title="Preis in Coins"><input id="is" placeholder="Symbol z. B. ★" size="8" style="display:none"><button class="b" id="iup">Hochladen</button></div>
+  <div class="row between"><div class="seg" id="stabs"><button class="on" data-st="all">Alle</button><button data-st="skin">Skins</button><button data-st="cape">Capes</button><button data-st="badge">Badges</button><button data-st="mine">Meine</button></div><button class="b" id="uout">Abmelden</button></div>
+  <div class="grid2" id="items"></div></div></div>
+
+<!-- CHEAT-ECKE -->
+<div id="cheat" class="page"><h1>Cheat-Ecke</h1>
+ <div class="g card" id="lock" style="max-width:440px"><b>Gesperrter Bereich</b><p class="dim" style="margin:6px 0 12px">Gib das Passwort ein, um hier reinzukommen.</p><div class="row"><input id="pw" type="password" placeholder="Passwort"><button class="b" id="unl">Öffnen</button></div></div>
+ <div id="cc" style="display:none;flex-direction:column;gap:14px">
+  <div class="g card warn">⚠ Nur in Einzelspieler oder auf Servern nutzen, die es erlauben. Auf den meisten Servern gibt es dafür einen Bann.</div>
+  <div class="g card row"><span class="dim">Minecraft-Version</span><select id="cmc"></select><span class="dim">In Profil</span><select id="ctarget"></select><span style="flex:1"></span><button class="b" id="cimp">Eigene .jar importieren</button></div>
+  <div id="clist"></div>
+  <div class="g card"><h3>Eigenen Client hinzufügen</h3><p class="hint" style="margin-bottom:8px">Weitere Clients (z. B. Cactus, Crypton): trag die offizielle GitHub-Seite („owner/repo“) oder einen Direktlink zur .jar ein – der Client taucht dann oben in der Liste auf.</p><div class="row"><input id="cn" placeholder="Name"><input id="cs" placeholder="owner/repo oder https://…/client.jar" size="34"><button class="b" id="cadd">Hinzufügen</button></div></div>
+ </div></div>
+
+<!-- EINSTELLUNGEN -->
+<div id="set" class="page"><h1>Einstellungen</h1>
+ <div class="g card"><div class="line"><span>Arbeitsspeicher</span><select id="ram"><option>2</option><option>4</option><option>6</option><option>8</option><option>12</option><option>16</option></select></div>
+  <div class="line"><span>Zusätzliche Java-Argumente</span><input id="jvm" size="34" placeholder="z. B. -XX:+UseG1GC"></div>
+  <div class="line"><span>Performance-Preset (Java)</span><select id="pre"><option value="">Standard</option><option value="perf">Performance (G1GC)</option></select></div>
+  <div class="line"><span>Launcher beim Spielstart minimieren</span><input type="checkbox" id="mini"></div>
+  <div class="line"><span>GitHub-Token (optional)<small class="hint">Verhindert das GitHub-Limit beim Laden von Cheat-Clients</small></span><input id="ghtok" type="password" size="26" placeholder="ghp_…"></div>
+  <div class="line"><span>Konto</span><button class="b" id="out">Abmelden</button></div></div></div>
+</main>
+
+<div id="px"><div class="g pxbox"><div class="row between"><h1 style="font-size:24px">Skin Pixler</h1><button class="b sm" id="pxclose">✕ Schließen</button></div>
+ <div class="pxgrid"><div class="pxtools">
+  <div class="row"><button class="b sm on" data-tool="pen">✎ Stift</button><button class="b sm" data-tool="erase">⌫ Radierer</button><button class="b sm" data-tool="fill">▨ Füllen</button><button class="b sm" data-tool="pick">◉ Pipette</button></div>
+  <div class="row"><input type="color" id="pxcol" value="#ff9f1c" style="padding:2px;width:48px;height:34px"><select id="pxsize"><option value="1">1 px</option><option value="2">2 px</option><option value="3">3 px</option></select><button class="b sm" id="pxundo">↶</button><button class="b sm" id="pxredo">↷</button><label class="dim"><input type="checkbox" id="pxguide" checked> UV-Hilfe</label></div>
+  <div class="row" id="pxpal"></div>
+  <canvas id="pxp" class="pxprev"></canvas>
+  <div class="row"><button class="b sm" id="pxcur">Aktueller Skin</button><select id="pxlib"><option value="">Aus Sammlung …</option></select><label class="b sm" style="cursor:pointer">Datei …<input type="file" id="pxfile" accept="image/png" hidden></label><button class="b sm" id="pxnew">Leer</button></div>
+  <div class="row"><input id="pxname" value="Pixler-Skin" size="14"><button class="b sm" id="pxsave">Speichern</button><button class="play" id="pxapply">Anwenden</button></div>
+ </div><div class="pxcv"><canvas id="pxc"></canvas><canvas id="pxg"></canvas></div></div></div></div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+' Mio':n>=1e3?Math.round(n/1e3)+' Tsd':n;
+const ago=t=>{if(!t)return'Noch nie gespielt';const m=(Date.now()-t)/6e4;return 'Vor '+(m<60?Math.max(1,Math.round(m))+' Min':m<1440?Math.round(m/60)+' Std':Math.round(m/1440)+' Tagen')};
+const fmtT=t=>t<36e5?Math.max(1,Math.round(t/6e4))+' Min':(t/36e5).toFixed(1)+' Std';
+const LN={fabric:'Fabric',quilt:'Quilt',forge:'Forge',neoforge:'NeoForge',vanilla:'Vanilla'},LC={fabric:'f',quilt:'q',forge:'n',neoforge:'n',vanilla:'v'};
+let S={servers:[],divine:{},serverCfg:{}},U=null,P=[],R=[],VERS={releases:[],snapshots:[]},type='modpack',off=0,G={state:'idle'},unlocked=false,CH=null,D=null,tab='all',IT=[],amode='login',stopping=false,cur='',curTab='ov',DV=null,PRJ=null;
+const AV={skin:'',mojang:'',back:false};
+setTimeout(()=>$('#splash').classList.add('off'),7000);
+
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',4500)}
+function say(m){if(m&&m.state){if(m.state==='idle'){if(m.code&&!stopping)toast('Minecraft wurde mit Code '+m.code+' beendet – siehe Log.');stopping=false}G={state:m.state,pack:m.pack};$('#ls').classList.toggle('on',m.state==='starting');if(m.state!=='starting')$('#pg').style.display='none';renderAll();return}
+ if(m&&typeof m==='object'){const g=$('#pg');$('#lst').textContent=m.text;$('#lsb').style.width=m.pct+'%';if(G.state==='starting')return;g.style.display='block';$('#pgt').textContent=m.text;$('#pgb').style.width=m.pct+'%';if(m.pct>=100)setTimeout(()=>g.style.display='none',1500);return}
+ const l=$('#log');l.textContent=(l.textContent+'\n'+m).slice(-4000);l.scrollTop=l.scrollHeight}
+api.onLog(say);
+const fail=e=>{const m=String(e&&e.message||e).replace(/^Error invoking remote method '[^']+': (Error: )?/,'');say('Fehler: '+m);toast('Fehler: '+m);$('#pg').style.display='none'};
+window.onerror=m=>toast('Fehler: '+m);window.onunhandledrejection=e=>fail(e.reason);
+const run=f=>async(...a)=>{try{await f(...a)}catch(e){fail(e)}};
+const inv=(c,...a)=>api.invoke(c,...a);
+const setS=async p=>{S=await inv('settings:set',p);return S};
+
+function go(t){$$('nav [data-t],.page').forEach(x=>x.classList.remove('on'));$(`nav [data-t=${t}]`).classList.add('on');$('#'+t).classList.add('on');
+ if(t==='skins'){loadSkins();loadCapes();paintCapeInfo()}if(t==='shop')shopView();if(t==='cheat')cheatShow();if(t==='discover'&&!R.length&&!PRJ)search(true);if(t==='divine')divineView();if(t==='home')renderAll()}
+$$('nav [data-t]').forEach(b=>{b.title=b.textContent.trim();b.onclick=()=>go(b.dataset.t)});
+$$('[data-win]').forEach(i=>i.onclick=()=>api.win(i.dataset.win));
+
+/* ---------- Avatar (Skin + Cape, Vorne/Hinten) ---------- */
+const loadImg=src=>new Promise(r=>{if(!src)return r(null);const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src});
+async function drawAvatar(c,skinSrc,capeSrc,back,head){
+ const [sk,cp]=await Promise.all([loadImg(skinSrc),loadImg(capeSrc)]),x=c.getContext('2d');
+ c.width=head?8:16;c.height=head?8:32;x.imageSmoothingEnabled=false;x.clearRect(0,0,c.width,c.height);if(!sk)return;
+ const k=sk.width/64,nw=sk.height/k>=64,d=(sx,sy,w,h,dx,dy,fl)=>{x.save();if(fl){x.translate(dx+w,dy);x.scale(-1,1);dx=0;dy=0}x.drawImage(sk,sx*k,sy*k,w*k,h*k,dx,dy,w,h);x.restore()};
+ if(head){d(8,8,8,8,0,0);d(40,8,8,8,0,0);return}
+ if(!back){
+  d(8,8,8,8,4,0);d(20,20,8,12,4,8);d(44,20,4,12,0,8);nw?d(36,52,4,12,12,8):d(44,20,4,12,12,8,true);d(4,20,4,12,4,20);nw?d(20,52,4,12,8,20):d(4,20,4,12,8,20,true);
+  if(nw){d(20,36,8,12,4,8);d(44,36,4,12,0,8);d(52,52,4,12,12,8);d(4,36,4,12,4,20);d(4,52,4,12,8,20)}d(40,8,8,8,4,0);
+ }else{
+  d(24,8,8,8,4,0);d(32,20,8,12,4,8);d(12,20,4,12,8,20);nw?d(28,52,4,12,4,20):d(12,20,4,12,4,20,true);
+  if(cp){const ck=cp.width/(cp.width===cp.height*2?64:22);x.drawImage(cp,ck,ck,10*ck,16*ck,3,8,10,16)}
+  d(52,20,4,12,12,8);nw?d(44,52,4,12,0,8):d(52,20,4,12,0,8,true);
+  if(nw){d(32,36,8,12,4,8);d(52,36,4,12,12,8);d(60,52,4,12,0,8);d(12,36,4,12,8,20);d(12,52,4,12,4,20)}d(56,8,8,8,4,0);
+ }
+}
+const effCape=()=>(D&&D.capeData)||AV.mojang||'';
+function redrawAv(){drawAvatar($('#me'),AV.skin,effCape(),AV.back);drawAvatar($('#big'),AV.skin,effCape(),AV.back);drawAvatar($('#acc canvas'),AV.skin,'',false,true);paintCapeInfo()}
+function paintCapeInfo(){const e=$('#capeinfo');if(!e)return;e.textContent=D&&D.capeData?'Divine-Cape aktiv (Vorschau im Launcher)':AV.mojang?'Mojang-Cape aktiv':'Keine Cape ausgewählt'}
+async function refreshAv(){
+ AV.skin='';AV.mojang='';
+ if(U){try{const r=await inv('skins:list');if(r.current){AV.skin=r.current.url;$('#cur').textContent='Aktueller Skin ('+r.current.variant.toLowerCase()+')'}else $('#cur').textContent='Kein Skin gefunden'}catch{}
+  try{const c=(await inv('capes:list')).find(x=>x.active);if(c)AV.mojang=c.data}catch{}}
+ else $('#cur').textContent='Melde dich an, um deinen Skin zu sehen';
+ redrawAv()}
+function setUser(u){U=u;paintName();$('#as').textContent=u?'Konto verbunden':'Zum Anmelden klicken';$('#me').style.visibility=u?'visible':'hidden';$('#hl').style.display=u?'none':'inline-block';return refreshAv()}
+$('#acc').onclick=$('#hl').onclick=run(async()=>{if(!U)await setUser(await inv('login'))});
+$('#out').onclick=async()=>{await inv('logout');setUser(null)};
+function paintName(){const b=D&&D.badge?D.badge+' ':'',nm=U?(S.hideName?'••••••':U.name):'Nicht angemeldet';$('#an').textContent=$('#ncn').textContent=b+nm;$('#coins').textContent=D?D.coins:'–';$('#hi').textContent=U?'Willkommen zurück, '+b+(S.hideName?'Spieler':U.name):'Willkommen zurück'}
+
+/* ---------- Profile ---------- */
+const sorted=()=>[...P].sort((a,b)=>(b.last||0)-(a.last||0));
+const cnt=p=>p.managed?p.count:p.mods.length;
+function tile(p,sz){const c=sz?' '+sz:'';if(p.icon)return `<img class="tile${c}" src="${esc(p.icon)}" alt="">`;let h=0;for(const ch of p.name)h=(h*31+ch.charCodeAt(0))%360;return `<div class="tile${c}" style="--c1:hsl(${h},70%,45%);--c2:hsl(${(h+50)%360},70%,28%)">${esc(p.name[0].toUpperCase())}</div>`}
+const pbtn=(n,cls='')=>G.state==='idle'?`<button class="play ${cls}" data-act="play" data-a="${esc(n)}">▶ Spielen</button>`:G.pack===n?(G.state==='running'?`<button class="play stop ${cls}" data-act="stop">■ Stoppen</button>`:`<button class="play ${cls}" disabled>Startet …</button>`):`<button class="play ${cls}" disabled>▶ Spielen</button>`;
+const lchip=p=>`<span class="chip ${LC[p.loader||'fabric']}">${LN[p.loader||'fabric']}</span>`;
+async function refresh(){P=await inv('packs:list');const o=P.map(p=>`<option>${esc(p.name)}</option>`).join('');$('#target').innerHTML=$('#ctarget').innerHTML=$('#srvp').innerHTML=o;
+ $('#ctarget').insertAdjacentHTML('afterbegin','<option value="">Neues Profil erstellen</option>');$('#ctarget').value='';
+ const first=sorted()[0];if(first)$('#srvp').value=first.name;renderAll()}
+function renderAll(){
+ $('#s1').textContent=P.length;$('#s2').textContent=P.reduce((a,p)=>a+cnt(p),0);$('#s3').textContent=S.ram+' GB';$('#s4').textContent=(S.servers||[]).length;
+ $('#recent').innerHTML=sorted().slice(0,3).map(p=>`<div class="g prow" data-act="open" data-a="${esc(p.name)}">${tile(p)}<div class="t"><b>${esc(p.name)}</b><span class="dim">${LN[p.loader||'fabric']} ${esc(p.mc)} · ${cnt(p)} Mods · ${ago(p.last)}${p.played?' · '+fmtT(p.played)+' gespielt':''}</span></div><button class="b" data-act="folder" data-a="${esc(p.name)}" title="Ordner öffnen">📁</button>${pbtn(p.name)}</div>`).join('')||'<div class="g card dim">Noch kein Profil. Installiere ein Modpack unter „Entdecken“ oder erstelle ein eigenes Profil.</div>';
+ $('#pgrid').innerHTML=sorted().map(p=>`<div class="g pcard" data-act="open" data-a="${esc(p.name)}">${tile(p,'big')}<b title="${esc(p.name)}">${esc(p.name)}</b><div class="chips">${lchip(p)}<span class="chip">${esc(p.mc)}</span><span class="chip">${cnt(p)} Mods</span></div><small class="dim">${ago(p.last)}</small>${pbtn(p.name)}</div>`).join('')
+  +`<div class="g pcard add" data-act="goto" data-a="discover"><span class="plus">+</span>Modpack finden</div>`;
+ $('#srv').innerHTML=(S.servers||[]).map((s,i)=>`<div class="line"><span>${esc(s.name)}<small class="dim">${esc(s.addr)}</small></span><span class="row"><button class="b sm" data-act="join" data-a="${i}">Beitreten</button><a href="#" class="dim" data-act="srvdel" data-a="${i}">✕</a></span></div>`).join('')||'<p class="dim">Noch keine Server.</p>';
+ if(cur&&$('#pdv').style.display!=='none')renderPD()}
+const play=run(async(pack,server)=>{if(!pack)return toast('Erstelle oder installiere zuerst ein Profil.');toast('Starte „'+pack+'“ …');await inv('play',{pack,server});await refresh()});
+
+/* Profil-Detailansicht (wie Modrinth) */
+function openPD(n){cur=n;curTab='ov';$('#plistv').style.display='none';$('#pdv').style.display='flex';go('profiles');renderPD()}
+function closePD(){cur='';$('#pdv').style.display='none';$('#plistv').style.display='flex'}
+const PD_TABS=[['ov','Übersicht'],['mods','Mods'],['opt','Einstellungen']];
+async function renderPD(){const p=P.find(x=>x.name===cur);if(!p)return closePD();
+ let body='';
+ if(curTab==='ov')body=`<div class="g card"><h3>Details</h3><div class="line"><span>Minecraft</span><b>${esc(p.mc)}</b></div><div class="line"><span>Loader</span><b>${LN[p.loader||'fabric']}</b></div><div class="line"><span>Mods</span><b>${cnt(p)}</b></div><div class="line"><span>Zuletzt gespielt</span><b>${ago(p.last)}</b></div><div class="line"><span>Spielzeit</span><b>${p.played?fmtT(p.played):'–'}</b></div>${p.managed?'<div class="line"><span>Typ</span><b>Modrinth-Modpack</b></div>':''}</div>`;
+ if(curTab==='mods'){
+  if(p.managed){let f=[];try{f=await inv('packs:files',p.name)}catch{}
+   body=`<div class="g card"><div class="row between"><h3>Mods (${f.length})</h3><button class="b sm" data-act="impjar" data-a="${esc(p.name)}">+ .jar importieren</button></div>${f.map(m=>`<div class="mrow ${m.off?'off':''}"><span>${esc(m.file.replace(/\.disabled$/,''))}</span><span class="dim" style="flex:none">${(m.size/1048576).toFixed(1)} MB</span><button class="b sm" data-act="toggle" data-a="${esc(p.name)}" data-f="${esc(m.file)}">${m.off?'Aktivieren':'Deaktivieren'}</button></div>`).join('')||'<p class="dim">Die Mods werden beim ersten Spielstart geladen.</p>'}</div>`}
+  else body=`<div class="g card"><div class="row between"><h3>Mods (${p.mods.length})</h3><span class="row"><button class="b sm" data-act="addmods" data-a="${esc(p.name)}">+ Mods finden</button><button class="b sm" data-act="impjar" data-a="${esc(p.name)}">+ .jar importieren</button></span></div>${p.mods.map(m=>`<div class="mrow"><span>${esc(m.title)}</span><span class="dim" style="flex:none">${esc(m.filename)}</span><button class="b sm" data-act="rmmod" data-a="${esc(p.name)}" data-f="${esc(m.id)}">Entfernen</button></div>`).join('')||'<p class="dim">Noch keine Mods.</p>'}</div>`}
+ if(curTab==='opt')body=`<div class="g card"><div class="line"><span>Name</span><span class="row"><input id="rn" value="${esc(p.name)}" size="22"><button class="b sm" data-act="rename" data-a="${esc(p.name)}">Umbenennen</button></span></div><div class="line"><span>Icon</span><span class="row"><button class="b sm" data-act="seticon" data-a="${esc(p.name)}">Bild wählen …</button></span></div><div class="line"><span>Ordner</span><button class="b sm" data-act="folder" data-a="${esc(p.name)}">Öffnen</button></div><div class="line"><span>Duplizieren</span><button class="b sm" data-act="dup" data-a="${esc(p.name)}">Duplizieren</button></div><div class="line"><span>Profil exportieren (JSON)</span><button class="b sm" data-act="export" data-a="${esc(p.name)}">Kopieren</button></div><div class="line"><span>Löschen<small class="hint">inkl. Spielstand-Ordner</small></span><button class="b sm warn" data-act="del" data-a="${esc(p.name)}">Löschen</button></div></div>`;
+ $('#pdv').innerHTML=`<a href="#" class="dim" data-act="pdback">← Alle Profile</a><div class="g phead">${tile(p,'huge')}<div class="m"><h1>${esc(p.name)}</h1><div class="chips" style="margin:6px 0">${lchip(p)}<span class="chip">${esc(p.mc)}</span><span class="chip">${cnt(p)} Mods</span></div><span class="dim">${ago(p.last)}</span></div>${pbtn(p.name)}</div><div class="tabs">${PD_TABS.map(([k,l])=>`<button class="${k===curTab?'on':''}" data-act="pdtab" data-a="${k}">${l}</button>`).join('')}</div>${body}`}
+
+$('#sadd').onclick=async()=>{const addr=$('#sa').value.trim();if(!addr)return;S.servers.push({name:$('#sn').value.trim()||addr,addr});await setS({servers:S.servers});$('#sn').value=$('#sa').value='';renderAll()};
+$('#mk').onclick=run(async()=>{const name=$('#pn').value.trim();if(!name)return toast('Gib deinem Profil einen Namen.');if(P.some(p=>p.name===name))return toast('Dieses Profil gibt es schon.');
+ await inv('packs:create',{name,mc:$('#pv').value,loader:$('#pl').value});$('#pn').value='';await refresh();toast('Profil „'+name+'“ erstellt.'+($('#pl').value==='vanilla'?'':' Füge unter „Entdecken“ Mods hinzu.'))});
+$('#starter').onclick=run(async()=>{const name='Divine Essentials';if(P.some(p=>p.name===name))return toast('„Divine Essentials“ gibt es schon.');await inv('packs:create',{name,mc:$('#pv').value,loader:'fabric'});
+ for(const[slug,title]of[['fabric-api','Fabric API'],['sodium','Sodium'],['lithium','Lithium'],['iris','Iris Shaders'],['modmenu','Mod Menu'],['ferrite-core','FerriteCore'],['entityculling','Entity Culling'],['immediatelyfast','ImmediatelyFast'],['zoomify','Zoomify'],['appleskin','AppleSkin'],['sodium-extra','Sodium Extra'],['mouse-tweaks','Mouse Tweaks'],['dynamic-fps','Dynamic FPS']])
+ {try{say({pct:0,text:'Füge '+title+' hinzu …'});await inv('packs:add',{pack:name,slug,title})}catch(e){say('Übersprungen: '+e.message)}}say({pct:100,text:'Fertig'});await refresh()});
+
+/* ---------- Entdecken ---------- */
+function syncSeg(){$$('#tyseg button').forEach(b=>b.classList.toggle('on',b.dataset.ty===type));$('#tl').style.display=type==='mod'?'inline':'none';$('#ld').style.display=type==='mod'?'none':'inline-block'}
+$$('#tyseg button').forEach(b=>b.onclick=()=>{type=b.dataset.ty;syncSeg();closeDD();search(true)});
+const card=(m,i)=>`<div class="g res" data-act="proj" data-a="${esc(m.slug)}">${m.icon?`<img src="${esc(m.icon)}" alt="">`:`<div class="tile" style="--c1:#c2410c;--c2:#6b0f1a">${esc(m.title[0])}</div>`}
+ <div class="m"><b style="font-size:17px">${esc(m.title)}</b> <span class="dim">von ${esc(m.author)}</span><p>${esc(m.desc)}</p><div class="chips" style="margin-top:6px">${m.cats.map(c=>`<span class="chip">${esc(c)}</span>`).join('')}</div></div>
+ <div class="s"><span>⬇ ${fmt(m.downloads)}</span><span>♥ ${fmt(m.follows)}</span><button class="play" data-act="quick" data-a="${i}">${type==='mod'?'+ Hinzufügen':'Installieren'}</button></div></div>`;
+const search=run(async reset=>{if(reset===true){off=0;R=[];$('#res').innerHTML='<p class="dim">Lade …</p>'}
+ const tp=P.find(p=>p.name===$('#target').value),mc=$('#ver').value||(type==='mod'&&tp?tp.mc:'');
+ const loader=type==='mod'?(tp?(tp.loader==='quilt'?'fabric':tp.loader):''):$('#ld').value;const r=await inv('search',{q:$('#q').value,type,mc,loader,index:$('#sort').value,offset:off});
+ if(reset===true)$('#res').innerHTML='';off+=r.hits.length;const base=R.length;R.push(...r.hits);
+ $('#res').insertAdjacentHTML('beforeend',r.hits.map((m,k)=>card(m,base+k)).join('')||(base?'':'<p class="dim">Keine Treffer.</p>'));$('#more').style.display=off<r.total?'inline-block':'none'});
+$('#s').onclick=()=>{closeDD();search(true)};$('#more').onclick=()=>search();$('#q').onkeydown=e=>{if(e.key==='Enter'){closeDD();search(true)}};
+async function installPack(m,loader,mc){const n=await inv('pack:install',{slug:m.slug,title:m.title,icon:m.icon,loader,mc});await refresh();toast(`„${n}“ installiert – unter Start spielbar.`)}
+async function addMod(m,pack){if(!pack)throw new Error('Erstelle zuerst ein Profil.');await inv('packs:add',{pack,slug:m.slug,title:m.title});await refresh();toast(`${m.title} zu „${pack}“ hinzugefügt.`)}
+/* md → sicheres HTML */
+function md(src){let s=String(src||'').replace(/<img[^>]*src=["']([^"']+)["'][^>]*>/gi,'\n![]($1)\n').replace(/<br\s*\/?>/gi,'\n').replace(/<\/(p|div|h\d|li)>/gi,'\n').replace(/<[^>]+>/g,'');
+ s=esc(s);const blocks=[];s=s.replace(/```[a-z]*\n?([\s\S]*?)```/g,(_,c)=>{blocks.push(c);return '\u0000'+(blocks.length-1)+'\u0000'});
+ s=s.replace(/!\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)/g,'<img src="$2" alt="$1">').replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank">$1</a>')
+  .replace(/^#{1,2} (.+)$/gm,'<h2>$1</h2>').replace(/^#{3,6} (.+)$/gm,'<h3>$1</h3>').replace(/\*\*([^*\n]+)\*\*/g,'<b>$1</b>').replace(/`([^`\n]+)`/g,'<code>$1</code>')
+  .replace(/^(?:[-*] .+(?:\n|$))+/gm,m=>'<ul>'+m.trim().split('\n').map(l=>'<li>'+l.replace(/^[-*] /,'')+'</li>').join('')+'</ul>').replace(/\n{2,}/g,'<br><br>').replace(/\n/g,'<br>');
+ return s.replace(/\u0000(\d+)\u0000/g,(_,i)=>'<pre>'+blocks[i]+'</pre>')}
+function closeDD(){PRJ=null;$('#ddv').style.display='none';$('#dlistv').style.display='flex'}
+const openProject=run(async slug=>{const p=await inv('project:get',slug);PRJ=p;DV='desc';$('#dlistv').style.display='none';$('#ddv').style.display='flex';renderDD();go('discover')});
+function renderDD(){const p=PRJ;if(!p)return;const isMod=p.type==='mod',lds=p.loaders.filter(l=>LN[l]);
+ const act=isMod?`<select id="dv-t">${P.map(x=>`<option>${esc(x.name)}</option>`).join('')}</select><button class="play" data-act="dvadd">+ Zu Profil</button>`
+  :`<select id="dv-l">${lds.map(l=>`<option value="${l}">${LN[l]}</option>`).join('')}</select><select id="dv-v"><option value="">Neueste</option>${p.gv.map(v=>`<option>${esc(v)}</option>`).join('')}</select><button class="play" data-act="dvinst">Installieren</button>`;
+ let body='';if(DV==='desc')body=`<div class="g card body">${md(p.body)||esc(p.desc)}</div>`;
+ if(DV==='gal')body=`<div class="gal">${p.gallery.map(g=>`<img src="${esc(g.url)}" alt="${esc(g.title)}">`).join('')||'<p class="dim">Keine Bilder.</p>'}</div>`;
+ if(DV==='ver')body=`<div class="g card">${p.versions.map(v=>`<div class="line"><span><b>${esc(v.name)}</b><small class="dim">${esc(v.gv.join(', '))} · ${v.loaders.map(l=>LN[l]||l).join(', ')}</small></span><span class="dim">${esc(v.type)} · ⬇ ${fmt(v.dl)} · ${esc(String(v.date).slice(0,10))}</span></div>`).join('')||'<p class="dim">Keine Versionen.</p>'}</div>`;
+ $('#ddv').innerHTML=`<a href="#" class="dim" data-act="ddback">← Zurück zur Suche</a><div class="g dh">${p.icon?`<img src="${esc(p.icon)}" alt="">`:`<div class="tile">${esc(p.title[0])}</div>`}<div style="flex:1;min-width:0"><h1>${esc(p.title)}</h1><p class="dim" style="margin:4px 0 8px">${esc(p.desc)}</p><div class="chips">${p.cats.map(c=>`<span class="chip">${esc(c)}</span>`).join('')}${lds.map(l=>`<span class="chip ${LC[l]}">${LN[l]}</span>`).join('')}</div><div class="row" style="margin-top:12px"><span>⬇ ${fmt(p.downloads)}</span><span>♥ ${fmt(p.follows)}</span><span class="dim">MC: ${esc(p.gv.slice(0,5).join(', '))}…</span></div></div><div class="col" style="align-items:stretch;min-width:170px">${act}</div></div>
+ <div class="tabs">${[['desc','Beschreibung'],['gal','Galerie'],['ver','Versionen']].map(([k,l])=>`<button class="${k===DV?'on':''}" data-act="ddtab" data-a="${k}">${l}</button>`).join('')}</div>${body}`}
+
+/* ---------- Skins ---------- */
+async function loadSkins(){const r=await inv('skins:list');
+ $('#lib').innerHTML=r.library.map(s=>`<div class="skin g"><canvas></canvas><div style="font-size:12px" class="dim">${esc(s.name.replace('.png',''))}</div><a href="#" class="dim" data-del="1">Löschen</a></div>`).join('')||'<p class="dim">Importiere PNG-Skins, um deine Sammlung zu starten.</p>';
+ [...$('#lib').querySelectorAll('.skin')].forEach((el,i)=>{const s=r.library[i];drawAvatar(el.querySelector('canvas'),s.data,'',false);
+  el.onclick=run(async()=>{await inv('skins:apply',{name:s.name,variant:$('#var').value});toast('Skin gesetzt.');await refreshAv()});
+  el.querySelector('[data-del]').onclick=async e=>{e.preventDefault();e.stopPropagation();await inv('skins:delete',s.name);loadSkins()}})}
+$('#imp').onclick=async()=>{await inv('skins:import');loadSkins()};
+function drawCape(c,src){const img=new Image();img.onload=()=>{const k=img.width/(img.width===img.height*2?64:22),x=c.getContext('2d');x.imageSmoothingEnabled=false;c.width=10;c.height=16;x.drawImage(img,k,k,10*k,16*k,0,0,10,16)};img.src=src}
+const loadCapes=run(async()=>{const r=await inv('capes:list');AV.mojang=(r.find(c=>c.active)||{}).data||'';redrawAv();
+ $('#capes').innerHTML='<div class="skin g" data-cid=""><div style="height:120px;display:grid;place-items:center;font-size:30px">∅</div><div class="dim" style="font-size:12px">Keine Cape</div></div>'+r.map(c=>`<div class="skin g" data-cid="${esc(c.id)}" style="${c.active?'border-color:var(--teal)':''}"><canvas data-cp="${esc(c.id)}"></canvas><div class="dim" style="font-size:12px">${esc(c.alias)}</div></div>`).join('');
+ $$('#capes canvas').forEach(cv=>drawCape(cv,r.find(c=>c.id===cv.dataset.cp).data));
+ $$('#capes [data-cid]').forEach(el=>el.onclick=run(async()=>{await inv('capes:set',el.dataset.cid||null);if(el.dataset.cid)AV.back=true;toast('Cape geändert.');loadCapes()}));
+ // gekaufte Divine-Capes
+ if(!D){$('#dcapes').innerHTML='<p class="dim">Melde dich im Shop an, um deine gekauften Capes zu sehen.</p>';return}
+ const its=(await inv('shop:list')).filter(i=>i.type==='cape'&&D.owned.includes(i.id));
+ $('#dcapes').innerHTML='<div class="skin g" data-dc=""><div style="height:120px;display:grid;place-items:center;font-size:30px">∅</div><div class="dim" style="font-size:12px">Keine</div></div>'+its.map(i=>`<div class="skin g" data-dc="${esc(i.id)}" style="${D.cape===i.id?'border-color:var(--teal)':''}"><canvas data-dp="${esc(i.id)}"></canvas><div class="dim" style="font-size:12px">${esc(i.name)}</div></div>`).join('');
+ $$('#dcapes canvas').forEach(cv=>drawCape(cv,its.find(i=>i.id===cv.dataset.dp).data));
+ $$('#dcapes [data-dc]').forEach(el=>el.onclick=run(async()=>{D=await inv('shop:cape',el.dataset.dc||null);AV.back=!!D.cape;redrawAv();toast(D.cape?'Cape wird getragen.':'Cape abgelegt.');loadCapes()}))});
+
+/* ---------- Divine Settings ---------- */
+async function divineView(){const d=S.divine;$('#dmenu').checked=!!d.menu;$('#d-gui').value=d.gui;$('#d-fov').value=d.fov;$('#d-rd').value=d.renderDistance;$('#d-fps').value=d.maxFps;$('#d-fb').value=d.fullbright;$('#d-ol').value=d.outline;$('#hide').checked=!!S.hideName;
+ try{$('#bgprev').src=await inv('divine:bgPreview')}catch{}
+ const gs=`<option value="">Standard</option><option value="0">Automatisch</option><option value="1">Klein (1)</option><option value="2">Normal (2)</option><option value="3">Groß (3)</option><option value="4">Sehr groß (4)</option>`;
+ $('#srvcfg').innerHTML=(S.servers||[]).map((s,i)=>`<div class="line"><span>${esc(s.name)}<small class="dim">${esc(s.addr)}</small></span><select data-sg="${i}">${gs}</select></div>`).join('')||'<p class="dim">Füge auf der Startseite einen Server hinzu.</p>';
+ $$('#srvcfg select').forEach(sel=>{const s=S.servers[sel.dataset.sg];sel.value=(S.serverCfg[s.addr]||{}).gui??'';sel.onchange=run(async()=>{const cfg={...S.serverCfg};cfg[s.addr]={...(cfg[s.addr]||{}),gui:sel.value};await setS({serverCfg:cfg});toast('Gespeichert.')})})}
+const saveD=run(async()=>{await setS({divine:{menu:$('#dmenu').checked,gui:$('#d-gui').value,fov:$('#d-fov').value,renderDistance:$('#d-rd').value,maxFps:$('#d-fps').value,fullbright:$('#d-fb').value,outline:$('#d-ol').value}})});
+['#dmenu','#d-gui','#d-fov','#d-rd','#d-fps','#d-fb','#d-ol'].forEach(s=>$(s).onchange=saveD);
+$('#bgpick').onclick=run(async()=>{S=await inv('divine:pickBg');divineView();toast('Hintergrund gespeichert – gilt ab dem nächsten Start.')});
+$('#bgreset').onclick=run(async()=>{S=await inv('divine:resetBg');divineView()});
+$('#hide').onchange=run(async()=>{await setS({hideName:$('#hide').checked});paintName()});
+
+/* ---------- Einstellungen ---------- */
+$('#ram').onchange=async()=>{await setS({ram:+$('#ram').value});renderAll()};
+$('#jvm').onchange=async()=>{await setS({jvm:$('#jvm').value})};
+$('#mini').onchange=async()=>{await setS({minimize:$('#mini').checked})};
+$('#ghtok').onchange=async()=>{await setS({ghToken:$('#ghtok').value.trim()})};
+const AIK='-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1';
+$('#pre').onchange=async()=>{const v=$('#pre').value==='perf'?AIK:'';$('#jvm').value=v;await setS({jvm:v})};
+
+/* ---------- Cheat-Ecke ---------- */
+function cheatShow(){$('#lock').style.display=unlocked?'none':'block';$('#cc').style.display=unlocked?'flex':'none';if(unlocked)renderCheats()}
+const renderCheats=run(async()=>{CH=await inv('cheat:list');$('#clist').innerHTML=CH.map(c=>`<div class="g cl"><div class="tile big" style="--c1:${(c.c||['#ff5f7e'])[0]};--c2:${(c.c||['#ff5f7e','#9a1c1c'])[1]}">${esc(c.name[0])}</div><div class="m"><b style="font-size:17px">${esc(c.name)}</b><p>${esc(c.desc)}</p><div class="chips" style="margin-top:6px"><span class="chip f">Fabric</span><span class="chip">${esc(c.cat)}</span></div></div><div class="s">${c.site?`<a href="${esc(c.site)}" target="_blank" class="dim">Webseite ↗</a>`:''}<button class="play" data-act="cinst" data-a="${esc(c.id)}">Installieren</button>${c.custom?`<a href="#" class="dim" data-act="cdel" data-a="${esc(c.id)}">Entfernen</a>`:''}</div></div>`).join('')});
+$('#unl').onclick=run(async()=>{if(await inv('cheat:unlock',$('#pw').value)){unlocked=true;$('#pw').value='';cheatShow()}else toast('Falsches Passwort.')});
+$('#pw').onkeydown=e=>{if(e.key==='Enter')$('#unl').click()};
+$('#cadd').onclick=run(async()=>{await inv('cheat:addCustom',{name:$('#cn').value,src:$('#cs').value});$('#cn').value=$('#cs').value='';renderCheats();toast('Client hinzugefügt.')});
+$('#cimp').onclick=run(async()=>{const pack=$('#ctarget').value;if(!pack)return toast('Wähle zuerst oben ein Profil aus („In Profil“).');const n=await inv('mods:importJar',pack);if(n){await refresh();toast(n+' Datei(en) importiert.')}});
+async function cheatInstall(id,b){const target=$('#ctarget').value,mc=$('#cmc').value;b.disabled=true;b.textContent='Installiere …';
+ try{let r;try{r=await inv('cheat:install',{id,mc,target})}catch(err){if(String(err.message).includes('passende Version')&&confirm('Keine exakt passende Version gefunden. Neueste trotzdem laden?'))r=await inv('cheat:install',{id,mc,target,force:true});else throw err}
+  await refresh();toast(r.fresh?`Profil „${r.name}“ erstellt – unter Start spielbar.`:`Zu „${r.name}“ hinzugefügt.`+(r.exact?'':' (Version ggf. nicht exakt)'))}finally{b.disabled=false;b.textContent='Installieren'}}
+
+/* ---------- Shop ---------- */
+function shopView(){$('#auth').style.display=D?'none':'block';$('#store').style.display=D?'flex':'none';$('#wal').style.display=D?'block':'none';if(!D)return;
+ $('#wal').innerHTML=`<b style="color:var(--teal)">${D.coins}</b> Coins · ${esc(D.name)}${D.role==='creator'?' <span class="bd" style="--a:#ffd23f">CREATOR</span>':''}`;$('#upl').style.display=D.role==='creator'?'flex':'none';renderItems()}
+const renderItems=run(async()=>{IT=await inv('shop:list');const l=IT.filter(i=>tab==='all'||(tab==='mine'?D.owned.includes(i.id):i.type===tab));
+ $('#items').innerHTML=l.map(i=>{const own=D.owned.includes(i.id),pv=i.type==='badge'?`<span>${esc(i.symbol)}</span>`:`<canvas data-pv="${esc(i.id)}"></canvas>`;
+  const btn=!own?`<button class="play" data-act="shop" data-s="buy" data-a="${esc(i.id)}">${i.price?i.price+' Coins':'Gratis holen'}</button>`:i.type==='skin'?`<button class="play" data-act="shop" data-s="skin" data-a="${esc(i.id)}">Als Skin nutzen</button>`:i.type==='badge'?`<button class="play" data-act="shop" data-s="badge" data-a="${esc(D.badge===i.symbol?'':i.id)}">${D.badge===i.symbol?'Ablegen':'Tragen'}</button>`:`<button class="play" data-act="shop" data-s="cape" data-a="${esc(D.cape===i.id?'':i.id)}">${D.cape===i.id?'Ablegen':'Tragen'}</button>`;
+  return `<div class="g item"><div class="pv">${pv}</div><b>${esc(i.name)}</b><div class="dim" style="font-size:12px">${esc(i.type)} · von ${esc(i.author)}</div><div style="margin:10px 0 4px">${btn}</div>${i.author===D.name?`<a href="#" class="dim" data-act="shop" data-s="del" data-a="${esc(i.id)}" style="font-size:12px">Löschen</a>`:''}</div>`}).join('')||'<p class="dim">Hier ist noch nichts.</p>';
+ $$('#items canvas[data-pv]').forEach(c=>{const i=IT.find(x=>x.id===c.dataset.pv);i.type==='cape'?drawCape(c,i.data):drawAvatar(c,i.data,'',false)})});
+async function shopAct(a,id){
+ if(a==='buy'){D=await inv('shop:buy',id);toast('Gekauft!')}
+ else if(a==='badge'){D=await inv('shop:badge',id);toast(D.badge?'Badge aktiv: '+D.badge:'Badge abgelegt');paintName()}
+ else if(a==='cape'){D=await inv('shop:cape',id||null);AV.back=!!D.cape;redrawAv();toast(D.cape?'Cape wird getragen – sieh sie dir im Avatar an (⟲ Drehen).':'Cape abgelegt.')}
+ else if(a==='skin'){const f=await inv('shop:toSkin',id);await inv('skins:apply',{name:f,variant:$('#var').value});toast('Skin gesetzt.');await refreshAv()}
+ else if(a==='del'&&confirm('Item löschen?')){await inv('shop:delete',id)}
+ shopView()}
+$$('[data-au]').forEach(b=>b.onclick=()=>{amode=b.dataset.au;$$('[data-au]').forEach(x=>x.classList.toggle('on',x===b));$('#uc').style.display=amode==='reg'?'block':'none';$('#ugo').textContent=amode==='reg'?'Konto erstellen':'Anmelden'});
+$('#ugo').onclick=run(async()=>{D=await inv(amode==='reg'?'acc:register':'acc:login',{name:$('#un').value,pw:$('#up').value,code:$('#uc').value});$('#up').value='';paintName();shopView();redrawAv();toast('Willkommen, '+D.name+'!'+(D.role==='creator'?' Du bist Creator.':''))});
+$('#uout').onclick=async()=>{await inv('acc:logout');D=null;paintName();shopView();redrawAv()};
+$$('#stabs button').forEach(b=>b.onclick=()=>{tab=b.dataset.st;$$('#stabs button').forEach(x=>x.classList.toggle('on',x===b));renderItems()});
+$('#it').onchange=()=>{$('#is').style.display=$('#it').value==='badge'?'inline-block':'none'};
+$('#iup').onclick=run(async()=>{await inv('shop:upload',{name:$('#in').value,type:$('#it').value,price:$('#ip').value,symbol:$('#is').value});$('#in').value='';toast('Hochgeladen!');D=await inv('acc:me');shopView()});
+
+/* ---------- Klick-Verteiler ---------- */
+const ACT={
+ goto:a=>go(a),flip:()=>{AV.back=!AV.back;redrawAv()},stop:()=>{stopping=true;return inv('stop')},play:a=>play(a),
+ open:a=>openPD(a),pdback:()=>closePD(),pdtab:a=>{curTab=a;renderPD()},folder:a=>inv('open:folder',a),
+ dup:async a=>{await inv('packs:dup',a);toast('Profil dupliziert.');await refresh()},
+ del:async a=>{if(confirm(`Profil „${a}“ samt Spielstand-Ordner löschen?`)){await inv('packs:delete',a);closePD();await refresh()}},
+ export:async a=>{await navigator.clipboard.writeText(await inv('packs:export',a));toast('Profil in die Zwischenablage kopiert.')},
+ rename:async a=>{const n=await inv('packs:rename',{from:a,to:$('#rn').value});cur=n;await refresh();toast('Umbenannt.')},
+ seticon:async a=>{if(await inv('packs:setIcon',a)){await refresh();toast('Icon gesetzt.')}},
+ impjar:async a=>{const n=await inv('mods:importJar',a);if(n){await refresh();toast(n+' Datei(en) importiert.')}},
+ toggle:async(a,t)=>{await inv('packs:toggle',{pack:a,file:t.dataset.f});renderPD()},
+ rmmod:async(a,t)=>{await inv('packs:remove',{pack:a,id:t.dataset.f});await refresh()},
+ addmods:a=>{$('#target').value=a;type='mod';syncSeg();closePD();closeDD();R=[];go('discover');search(true)},
+ join:a=>play($('#srvp').value||sorted()[0]?.name,S.servers[a].addr),
+ srvdel:async a=>{S.servers.splice(a,1);await setS({servers:S.servers});renderAll()},
+ proj:a=>openProject(a),ddback:()=>closeDD(),ddtab:a=>{DV=a;renderDD()},
+ quick:async(a,t)=>{const m=R[a];t.disabled=true;const lbl=t.textContent;try{if(type==='mod'){t.textContent='…';await addMod(m,$('#target').value);t.textContent='Hinzugefügt ✓'}else{t.textContent='Installiere …';await installPack(m,$('#ld').value,$('#ver').value);t.textContent='Installiert ✓'}}catch(err){t.disabled=false;t.textContent=lbl;throw err}},
+ dvadd:async(a,t)=>{t.disabled=true;try{await addMod(PRJ,$('#dv-t').value)}finally{t.disabled=false}},
+ dvinst:async(a,t)=>{t.disabled=true;t.textContent='Installiere …';try{await installPack(PRJ,$('#dv-l').value,$('#dv-v').value)}finally{t.disabled=false;t.textContent='Installieren'}},
+ cinst:(a,t)=>cheatInstall(a,t),cdel:async a=>{await inv('cheat:removeCustom',a);renderCheats()},
+ shop:(a,t)=>shopAct(t.dataset.s,a)
+};
+document.addEventListener('click',run(async e=>{const t=e.target.closest('[data-act]');if(!t)return;const f=ACT[t.dataset.act];if(!f)return;if(t.tagName==='A')e.preventDefault();await f(t.dataset.a,t,e)}));
+
+/* ---------- Start ---------- */
+function fillVers(){const rel=VERS.releases||[],o=rel.map(v=>`<option>${esc(v)}</option>`).join(''),sn=(VERS.snapshots||[]).length?`<optgroup label="Snapshots">${VERS.snapshots.map(v=>`<option>${esc(v)}</option>`).join('')}</optgroup>`:'';
+ $('#pv').innerHTML=o+sn;$('#cmc').innerHTML=o;$('#ver').innerHTML='<option value="">Alle Versionen</option>'+o;if(rel.includes('1.21.1'))$('#pv').value='1.21.1'}
+(async()=>{try{S=await inv('settings:get');VERS=await inv('versions:list');fillVers();syncSeg();
+ $('#ram').value=S.ram;$('#jvm').value=S.jvm;$('#mini').checked=!!S.minimize;$('#ghtok').value=S.ghToken||'';$('#pre').value=(S.jvm||'').includes('G1GC')?'perf':'';
+ await refresh();D=await inv('acc:me');await setUser(await inv('autologin'))}catch(e){fail(e)}
+ paintName();await new Promise(r=>setTimeout(r,900));$('#splash').classList.add('off')})();
+
+// ---------- Skin Pixler ----------
+(()=>{const c=$('#pxc'),x=c.getContext('2d',{willReadFrequently:true}),gc=$('#pxg'),g=gc.getContext('2d');let tool='pen',size=1,un=[],re=[],down=false,lp=null,tm,first=true;
+c.width=c.height=64;gc.width=gc.height=512;
+const col=()=>$('#pxcol').value,snap=()=>{un.push(x.getImageData(0,0,64,64));if(un.length>60)un.shift();re=[]};
+const pv=()=>{clearTimeout(tm);tm=setTimeout(()=>drawAvatar($('#pxp'),c.toDataURL(),'',false),60)};
+const put=(px,py)=>{for(let i=0;i<size;i++)for(let j=0;j<size;j++){const X=px+i,Y=py+j;if(X<0||Y<0||X>63||Y>63)continue;x.clearRect(X,Y,1,1);if(tool!=='erase'){x.fillStyle=col();x.fillRect(X,Y,1,1)}}};
+const line=(a,b)=>{let[x0,y0]=a,[x1,y1]=b,dx=Math.abs(x1-x0),dy=-Math.abs(y1-y0),sx=x0<x1?1:-1,sy=y0<y1?1:-1,e=dx+dy;for(;;){put(x0,y0);if(x0===x1&&y0===y1)break;const e2=2*e;if(e2>=dy){e+=dy;x0+=sx}if(e2<=dx){e+=dx;y0+=sy}}};
+const pos=e=>{const r=c.getBoundingClientRect();return[Math.max(0,Math.min(63,Math.floor((e.clientX-r.left)/r.width*64))),Math.max(0,Math.min(63,Math.floor((e.clientY-r.top)/r.height*64)))]};
+const fill=(px,py)=>{const d=x.getImageData(0,0,64,64),a=d.data,i0=(py*64+px)*4,t=[a[i0],a[i0+1],a[i0+2],a[i0+3]],v=col(),r=parseInt(v.slice(1,3),16),gg=parseInt(v.slice(3,5),16),b=parseInt(v.slice(5,7),16);
+ if(t[0]===r&&t[1]===gg&&t[2]===b&&t[3]===255)return;const st=[[px,py]];while(st.length){const[X,Y]=st.pop();if(X<0||Y<0||X>63||Y>63)continue;const i=(Y*64+X)*4;if(a[i]!==t[0]||a[i+1]!==t[1]||a[i+2]!==t[2]||a[i+3]!==t[3])continue;a[i]=r;a[i+1]=gg;a[i+2]=b;a[i+3]=255;st.push([X+1,Y],[X-1,Y],[X,Y+1],[X,Y-1])}x.putImageData(d,0,0)};
+const pick=(px,py)=>{const p=x.getImageData(px,py,1,1).data;if(p[3])$('#pxcol').value='#'+[p[0],p[1],p[2]].map(v=>v.toString(16).padStart(2,'0')).join('')};
+c.onpointerdown=e=>{const p=pos(e);c.setPointerCapture(e.pointerId);if(tool==='pick'){pick(...p);return}snap();down=true;if(tool==='fill'){fill(...p);down=false}else{put(...p);lp=p}pv()};
+c.onpointermove=e=>{if(!down)return;const p=pos(e);line(lp,p);lp=p;pv()};c.onpointerup=()=>{down=false};
+const guide=()=>{g.clearRect(0,0,512,512);if(!$('#pxguide').checked)return;g.setLineDash([4,3]);g.font='11px sans-serif';[['Kopf',8,8,8,8],['Hut',40,8,8,8],['Körper',20,20,8,12],['Arm R',44,20,4,12],['Arm L',36,52,4,12],['Bein R',4,20,4,12],['Bein L',20,52,4,12]].forEach(([n,a,b,w,h])=>{g.strokeStyle=g.fillStyle='#ffd23f';g.strokeRect(a*8+.5,b*8+.5,w*8-1,h*8-1);g.fillText(n,a*8+3,b*8+12)})};
+const loadSrc=src=>new Promise(res=>{const im=new Image();im.onload=()=>{snap();x.clearRect(0,0,64,64);x.drawImage(im,0,0);pv();res()};im.src=src});
+const undo=(a,b)=>{if(!a.length)return;b.push(x.getImageData(0,0,64,64));x.putImageData(a.pop(),0,0);pv()};
+$('#pxundo').onclick=()=>undo(un,re);$('#pxredo').onclick=()=>undo(re,un);
+document.addEventListener('keydown',e=>{if(!$('#px').classList.contains('on')||!e.ctrlKey)return;if(e.key==='z')undo(un,re);if(e.key==='y')undo(re,un)});
+$$('[data-tool]').forEach(b=>b.onclick=()=>{tool=b.dataset.tool;$$('[data-tool]').forEach(t=>t.classList.toggle('on',t===b))});
+$('#pxsize').onchange=()=>size=+$('#pxsize').value;$('#pxguide').onchange=guide;
+$('#pxpal').innerHTML=['#ffd23f','#ff9f1c','#ff5a1f','#c0392b','#6b0f1a','#fff3e6','#c9a99a','#3a2a24','#130604','#2ecc71','#3498db','#8e44ad','#f5cba7','#a0522d'].map(v=>`<div class="sw" style="background:${v}" data-c="${v}"></div>`).join('');
+$('#pxpal').onclick=e=>{const s=e.target.closest('.sw');if(s)$('#pxcol').value=s.dataset.c};
+const libFill=async()=>{const r=await inv('skins:list');$('#pxlib').innerHTML='<option value="">Aus Sammlung …</option>'+r.library.map((s,i)=>`<option value="${i}">${esc(s.name.replace('.png',''))}</option>`).join('');$('#pxlib')._r=r;return r};
+$('#pxopen').onclick=run(async()=>{$('#px').classList.add('on');guide();const r=await libFill();if(first){first=false;if(r.current)await loadSrc(r.current.url);else pv()}});
+$('#pxclose').onclick=()=>$('#px').classList.remove('on');
+$('#pxcur').onclick=run(async()=>{const r=await inv('skins:list');if(!r.current)return toast('Kein Skin gefunden – melde dich an.');await loadSrc(r.current.url)});
+$('#pxlib').onchange=run(async()=>{const v=$('#pxlib').value;if(v!=='')await loadSrc($('#pxlib')._r.library[+v].data)});
+$('#pxfile').onchange=e=>{const f=e.target.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>loadSrc(fr.result);fr.readAsDataURL(f);e.target.value=''};
+$('#pxnew').onclick=()=>{snap();x.clearRect(0,0,64,64);pv()};
+const save=async()=>{const f=await inv('skins:save',{name:$('#pxname').value,data:c.toDataURL('image/png')});loadSkins();libFill();return f};
+$('#pxsave').onclick=run(async()=>{await save();toast('Skin in der Sammlung gespeichert.')});
+$('#pxapply').onclick=run(async()=>{const f=await save();await inv('skins:apply',{name:f,variant:$('#var').value});toast('Skin gesetzt.');await refreshAv()});
+})();
+</script></body></html>

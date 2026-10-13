@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1, "id": "divine", "version": "${version}", "name": "Divine Client",
+  "description": "Divine Settings im Hauptmenü – by ErikFCH1965", "authors": ["ErikFCH1965"],
+  "environment": "client",
+  "entrypoints": { "client": ["de.divine.DivineMod"] },
+  "depends": { "fabricloader": ">=0.15.0", "minecraft": "~1.21", "java": ">=21", "fabric-api": "*" }
+}
